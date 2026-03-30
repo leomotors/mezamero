@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Mezamero / 目覚めろ</title>
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&family=Outfit:wght@300;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg0: #f4f7fb;
+      --bg1: #e8eef7;
+      --grid: rgba(80, 120, 200, 0.08);
+      --shadow: 0 24px 60px rgba(40, 80, 140, 0.12);
+      --accent: #00a8cc;
+      --accent2: #7c5cff;
+      --text: #0f172a;
+      --muted: #64748b;
+    }
+
+    * { box-sizing: border-box; }
+    html, body {
+      margin: 0;
+      min-height: 100%;
+      font-family: "Outfit", system-ui, sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(1200px 800px at 10% -10%, rgba(0, 168, 204, 0.12), transparent 55%),
+        radial-gradient(900px 600px at 100% 0%, rgba(124, 92, 255, 0.1), transparent 50%),
+        linear-gradient(165deg, var(--bg0), var(--bg1));
+    }
+
+    /* Floating impact sprites (behind grid, above page gradient) */
+    #bg-impact-float {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      overflow: hidden;
+      pointer-events: none;
+    }
+
+    #bg-impact-float img {
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: auto;
+      height: auto;
+      max-width: min(96px, 14vw);
+      opacity: 0.5;
+      will-change: transform;
+      user-select: none;
+      -webkit-user-drag: none;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      background-image:
+        linear-gradient(var(--grid) 1px, transparent 1px),
+        linear-gradient(90deg, var(--grid) 1px, transparent 1px);
+      background-size: 48px 48px;
+      mask-image: radial-gradient(ellipse 80% 70% at 50% 20%, black 20%, transparent 75%);
+      opacity: 0.9;
+      z-index: 1;
+    }
+
+    .wrap {
+      position: relative;
+      z-index: 2;
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 3rem 1.5rem 4rem;
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 2.5rem;
+    }
+
+    .brand {
+      display: inline-flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.35rem;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(1.75rem, 4vw, 2.35rem);
+      font-weight: 700;
+      letter-spacing: -0.03em;
+      background: linear-gradient(120deg, #0f172a 0%, #1e3a5f 40%, var(--accent) 100%);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
+
+    .sub {
+      font-family: "JetBrains Mono", monospace;
+      font-size: 0.85rem;
+      font-weight: 500;
+      color: var(--muted);
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+
+    .hint {
+      margin-top: 0.75rem;
+      font-size: 0.95rem;
+      color: var(--muted);
+      font-weight: 300;
+    }
+
+    .grid {
+      display: grid;
+      gap: 1.25rem;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    }
+
+    .card {
+      position: relative;
+      border-radius: 20px;
+      padding: 1.25rem;
+      overflow: hidden;
+      isolation: isolate;
+      border: 1px solid rgba(255, 255, 255, 0.45);
+      background: linear-gradient(
+        155deg,
+        rgba(255, 255, 255, 0.52) 0%,
+        rgba(255, 255, 255, 0.28) 45%,
+        rgba(255, 255, 255, 0.2) 100%
+      );
+      backdrop-filter: blur(22px) saturate(1.45);
+      -webkit-backdrop-filter: blur(22px) saturate(1.45);
+      box-shadow: var(--shadow);
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 28px 70px rgba(40, 80, 140, 0.16);
+      border-color: rgba(255, 255, 255, 0.55);
+    }
+
+    .card::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      border-radius: inherit;
+      pointer-events: none;
+      box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.55),
+        inset 0 -1px 0 rgba(255, 255, 255, 0.12);
+    }
+
+    .card-inner { position: relative; z-index: 1; }
+
+    .thumb {
+      width: 100%;
+      aspect-ratio: 16 / 10;
+      object-fit: cover;
+      border-radius: 14px;
+      margin-bottom: 1rem;
+      border: 1px solid rgba(255, 255, 255, 0.5);
+      box-shadow: 0 8px 24px rgba(15, 23, 42, 0.08);
+    }
+
+    .title-row {
+      display: flex;
+      flex-direction: row;
+      flex-wrap: wrap;
+      align-items: baseline;
+      column-gap: 0.45rem;
+      row-gap: 0.15rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .name {
+      font-size: 1.2rem;
+      font-weight: 600;
+      letter-spacing: -0.02em;
+      min-width: 0;
+    }
+
+    .title-sep {
+      color: #cbd5e1;
+      font-size: 1rem;
+      font-weight: 300;
+      user-select: none;
+      line-height: 1;
+    }
+
+    .name-orig {
+      font-size: 0.8rem;
+      color: #94a3b8;
+      font-weight: 400;
+      min-width: 0;
+    }
+
+    .desc {
+      font-size: 0.9rem;
+      line-height: 1.45;
+      opacity: 0.92;
+      margin: 0 0 0.65rem;
+    }
+
+    .spec-block {
+      margin-bottom: 0.85rem;
+    }
+
+    .spec-label {
+      display: block;
+      font-family: "JetBrains Mono", monospace;
+      font-size: 0.65rem;
+      font-weight: 500;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: #94a3b8;
+      margin-bottom: 0.35rem;
+    }
+
+    .spec {
+      font-family: "JetBrains Mono", monospace;
+      font-size: 0.78rem;
+      line-height: 1.5;
+      color: #64748b;
+      margin: 0;
+    }
+
+    .mac {
+      font-family: "JetBrains Mono", monospace;
+      font-size: 0.72rem;
+      opacity: 0.55;
+      margin-bottom: 1rem;
+      word-break: break-all;
+    }
+
+    .mac-sep {
+      opacity: 0.65;
+      user-select: none;
+    }
+
+    .mac-ip {
+      opacity: 0.85;
+    }
+
+    button.wake {
+      width: 100%;
+      padding: 0.75rem 1rem;
+      border: none;
+      border-radius: 12px;
+      font-family: "Outfit", sans-serif;
+      font-weight: 600;
+      font-size: 0.95rem;
+      letter-spacing: 0.04em;
+      cursor: pointer;
+      position: relative;
+      overflow: hidden;
+      transition: filter 0.15s ease, transform 0.1s ease;
+    }
+
+    button.wake:active { transform: scale(0.98); }
+
+    button.wake:disabled {
+      opacity: 0.55;
+      cursor: not-allowed;
+    }
+
+    .toast {
+      position: fixed;
+      bottom: 1.5rem;
+      left: 50%;
+      transform: translateX(-50%) translateY(120%);
+      padding: 0.65rem 1.25rem;
+      border-radius: 999px;
+      font-size: 0.9rem;
+      background: rgba(15, 23, 42, 0.92);
+      color: #f8fafc;
+      box-shadow: 0 12px 40px rgba(15, 23, 42, 0.25);
+      opacity: 0;
+      transition: transform 0.35s ease, opacity 0.35s ease;
+      z-index: 50;
+      pointer-events: none;
+    }
+
+    .toast.show {
+      transform: translateX(-50%) translateY(0);
+      opacity: 1;
+    }
+
+    .empty, .err {
+      text-align: center;
+      padding: 3rem 1rem;
+      color: var(--muted);
+    }
+
+    .err { color: #b91c1c; }
+  </style>
+</head>
+<body>
+  <div id="bg-impact-float" aria-hidden="true"></div>
+  <div class="wrap">
+    <header>
+      <div class="brand">
+        <h1>Mezamero</h1>
+        <span class="sub">目覚めろ · Wake control</span>
+      </div>
+      <p class="hint">Send a magic packet to wake machines on your LAN.</p>
+    </header>
+    <div id="root"></div>
+  </div>
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+  <script>
+    const IMPACT_FLOAT_OPACITY = 0.5;
+    const IMPACT_FLOAT_COUNT = 14;
+    const IMPACT_PAD = 96;
+
+    (function initImpactFloaties() {
+      if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+
+      const container = document.getElementById("bg-impact-float");
+      if (!container) return;
+
+      let W = window.innerWidth;
+      let H = window.innerHeight;
+
+      window.addEventListener(
+        "resize",
+        () => {
+          W = window.innerWidth;
+          H = window.innerHeight;
+        },
+        { passive: true }
+      );
+
+      /** @type {{ el: HTMLImageElement, x: number, y: number, vx: number, vy: number, rot: number, vr: number }[]} */
+      const parts = [];
+
+      for (let i = 0; i < IMPACT_FLOAT_COUNT; i++) {
+        const img = document.createElement("img");
+        img.src = "/impact-capsem.webp";
+        img.alt = "";
+        img.draggable = false;
+        img.style.opacity = String(IMPACT_FLOAT_OPACITY);
+        const size = 44 + Math.random() * 52;
+        img.style.width = size + "px";
+
+        const speed = 22 + Math.random() * 40;
+        const ang = Math.random() * Math.PI * 2;
+        parts.push({
+          el: img,
+          x: Math.random() * W,
+          y: Math.random() * H,
+          vx: Math.cos(ang) * speed,
+          vy: Math.sin(ang) * speed,
+          rot: Math.random() * 360,
+          vr: (Math.random() - 0.5) * 72,
+        });
+        container.appendChild(img);
+      }
+
+      let last = performance.now();
+      function frame(now) {
+        const dt = Math.min((now - last) / 1000, 0.064);
+        last = now;
+        const pad = IMPACT_PAD;
+        for (const p of parts) {
+          p.x += p.vx * dt;
+          p.y += p.vy * dt;
+          p.rot += p.vr * dt;
+          if (p.x > W + pad) p.x = -pad;
+          else if (p.x < -pad) p.x = W + pad;
+          if (p.y > H + pad) p.y = -pad;
+          else if (p.y < -pad) p.y = H + pad;
+          p.el.style.transform = `translate3d(${p.x}px, ${p.y}px, 0) rotate(${p.rot}deg)`;
+        }
+        requestAnimationFrame(frame);
+      }
+      requestAnimationFrame(frame);
+    })();
+
+    const root = document.getElementById("root");
+    const toastEl = document.getElementById("toast");
+
+    function toast(msg, ok) {
+      toastEl.textContent = msg;
+      toastEl.style.background = ok ? "rgba(15, 23, 42, 0.92)" : "rgba(127, 29, 29, 0.95)";
+      toastEl.classList.add("show");
+      clearTimeout(toast._t);
+      toast._t = setTimeout(() => toastEl.classList.remove("show"), 3200);
+    }
+
+    async function wake(mac) {
+      const res = await fetch("/api/wake", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ mac }),
+      });
+      if (!res.ok) {
+        const t = await res.text();
+        throw new Error(t || res.statusText);
+      }
+    }
+
+    function card(d) {
+      const bg = d.background_color || "#e0f2fe";
+      const fg = d.foreground_color || "#0f172a";
+      const el = document.createElement("article");
+      el.className = "card";
+      el.style.borderColor = fg + "28";
+
+      const orig = d.name_original
+        ? `<span class="title-sep" aria-hidden="true">·</span><span class="name-orig">${escapeHtml(d.name_original)}</span>`
+        : "";
+
+      const descBlock = d.description
+        ? `<p class="desc">${escapeHtml(d.description)}</p>`
+        : "";
+      const specBlock = d.spec
+        ? `<div class="spec-block"><span class="spec-label">Spec</span><p class="spec">${escapeHtml(d.spec)}</p></div>`
+        : "";
+      el.innerHTML = `
+        <div class="card-inner" style="color: ${fg}">
+          <img class="thumb" src="${escapeAttr(d.image)}" alt="" loading="lazy" />
+          <div class="title-row">
+            <span class="name">${escapeHtml(d.name)}</span>${orig}
+          </div>
+          <div class="meta">
+            ${descBlock}
+            ${specBlock}
+          </div>
+          <div class="mac">${escapeHtml(d.mac)}${d.ip ? `<span class="mac-sep" aria-hidden="true"> · </span><span class="mac-ip">${escapeHtml(d.ip)}</span>` : ""}</div>
+          <button class="wake" type="button" style="background: linear-gradient(135deg, ${bg}, ${adjustHue(bg)}); color: ${fg}; box-shadow: 0 8px 24px ${fg}22">
+            Wake
+          </button>
+        </div>
+      `;
+
+      const btn = el.querySelector("button.wake");
+      btn.addEventListener("click", async () => {
+        btn.disabled = true;
+        try {
+          await wake(d.mac);
+          toast("Magic packet sent", true);
+        } catch (e) {
+          toast(e.message || "Wake failed", false);
+        } finally {
+          btn.disabled = false;
+        }
+      });
+
+      return el;
+    }
+
+    function adjustHue(hex) {
+      /* subtle second stop for gradient */
+      return hex;
+    }
+
+    function escapeHtml(s) {
+      return String(s)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;");
+    }
+
+    function escapeAttr(s) {
+      return escapeHtml(s).replace(/'/g, "&#39;");
+    }
+
+    (async () => {
+      try {
+        const res = await fetch("/api/devices");
+        if (!res.ok) throw new Error("Could not load devices");
+        const devices = await res.json();
+        if (!devices.length) {
+          root.innerHTML = '<p class="empty">No devices configured.</p>';
+          return;
+        }
+        const g = document.createElement("div");
+        g.className = "grid";
+        devices.forEach((d) => g.appendChild(card(d)));
+        root.appendChild(g);
+      } catch (e) {
+        root.innerHTML = `<p class="err">${escapeHtml(e.message || "Error")}</p>`;
+      }
+    })();
+  </script>
+</body>
+</html>

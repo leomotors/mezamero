@@ -1,0 +1,20 @@
+# Copy to config.yaml and adjust. Docker: mount as /config/config.yaml
+devices:
+  - mac: "00:11:22:33:44:55"
+    ip: "192.168.1.42"
+    name: "Freddy Fazbear"
+    description: "My Dream Gaming PC frfr"
+    spec: "Ryzen 7 9850X3D · 67GB DDR5 · RTX 5090 32GB GDDR7"
+    image: https://storage.leomotors.me/vtwi/fnaf-freddy-fazbear.jpg
+    background_color: "#cffafe"
+    foreground_color: "#0c4a6e"
+
+  - mac: "aa:bb:cc:dd:ee:ff"
+    ip: 10.0.69.67
+    name: "Chisa"
+    name_original: 千咲
+    description: "Primary Gaming PC"
+    spec: "Ryzen 5 5600 · 16GB DDR4 · RX 6700 XT 12GB GDDR6"
+    image: https://storage.leomotors.me/mezamero/chisa_5star_cropped.webp
+    background_color: "#F5E8EA"
+    foreground_color: "#1A0C10"

@@ -1,0 +1,6 @@
+.git
+.gitignore
+mezamero
+README.md
+*.md
+.DS_Store
